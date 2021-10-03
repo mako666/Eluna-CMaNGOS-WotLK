@@ -44,6 +44,9 @@
 #include <G3D/CoordinateFrame.h>
 #include <G3D/Quat.h>
 #include "Entities/Transports.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 bool QuaternionData::isUnit() const
 {
@@ -124,6 +127,9 @@ void GameObject::AddToWorld()
     ///- Register the gameobject for guid lookup
     if (!IsInWorld())
     {
+#ifdef BUILD_ELUNA
+        sEluna->OnAddToWorld(this);
+#endif
         GetMap()->GetObjectsStore().insert<GameObject>(GetObjectGuid(), (GameObject*)this);
         if (GetDbGuid())
             GetMap()->AddDbGuidObject(this);
@@ -153,6 +159,9 @@ void GameObject::RemoveFromWorld()
     ///- Remove the gameobject from the accessor
     if (IsInWorld())
     {
+#ifdef BUILD_ELUNA
+        sEluna->OnRemoveFromWorld(this);
+#endif
         // Notify the outdoor pvp script
         if (OutdoorPvP* outdoorPvP = sOutdoorPvPMgr.GetScript(GetZoneId()))
             outdoorPvP->HandleGameObjectRemove(this);
@@ -280,6 +289,10 @@ bool GameObject::Create(uint32 guidlow, uint32 name_id, Map* map, uint32 phaseMa
             break;
     }
 
+#ifdef BUILD_ELUNA
+    sEluna->OnSpawn(this);
+#endif
+
     // Notify the battleground or outdoor pvp script
     if (map->IsBattleGroundOrArena())
         ((BattleGroundMap*)map)->GetBG()->HandleGameObjectCreate(this);
@@ -306,6 +319,11 @@ void GameObject::Update(const uint32 diff)
         //((Transport*)this)->Update(p_time);
         return;
     }
+
+#ifdef BUILD_ELUNA
+    // used by eluna
+    sEluna->UpdateAI(this, diff);
+#endif
 
     m_events.Update(diff);
 
@@ -2167,6 +2185,9 @@ void GameObject::SetLocalRotationAngles(float z_rot, float y_rot, float x_rot)
 void GameObject::SetLootState(LootState state)
 {
     m_lootState = state;
+#ifdef BUILD_ELUNA
+    sEluna->OnLootStateChanged(this, state);
+#endif
     UpdateCollisionState();
 
     // Call for GameObjectAI script
@@ -2177,6 +2198,9 @@ void GameObject::SetLootState(LootState state)
 void GameObject::SetGoState(GOState state)
 {
     SetByteValue(GAMEOBJECT_BYTES_1, 0, state);
+#ifdef BUILD_ELUNA
+    sEluna->OnGameObjectStateChanged(this, state);
+#endif
     UpdateCollisionState();
     if (AI())
         AI()->OnGoStateChange(state);

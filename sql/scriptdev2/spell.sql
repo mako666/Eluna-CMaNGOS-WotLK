@@ -991,7 +991,7 @@ INSERT INTO spell_scripts(Id, ScriptName) VALUES
 
 (54566,'spell_death_knight_pet_scaling_1'),
 (51996,'spell_death_knight_pet_scaling_2'),
-(61697,'spell_death_knight_pet_scaling_3'),
+(61697,'spell_death_knight_pet_scaling_3');
 
 (51905,'spell_death_knight_rune_weapon_scaling_1'),
 (51906,'spell_death_knight_rune_weapon_scaling_2'),

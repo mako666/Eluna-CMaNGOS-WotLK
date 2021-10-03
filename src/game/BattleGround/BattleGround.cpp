@@ -32,6 +32,9 @@
 #include "Tools/Formulas.h"
 #include "Grids/GridNotifiersImpl.h"
 #include "Chat/Chat.h"
+#ifdef BUILD_ELUNA
+#include "LuaEngine/LuaEngine.h"
+#endif
 
 namespace MaNGOS
 {
@@ -812,6 +815,9 @@ void BattleGround::FillInitialWorldStates(WorldPacket& data, uint32& count)
 */
 void BattleGround::EndBattleGround(Team winner)
 {
+#ifdef BUILD_ELUNA
+    sEluna->OnBGEnd(this, GetTypeId(), GetInstanceId(), winner);
+#endif
     this->RemoveFromBgFreeSlotQueue();
 
     ArenaTeam* winner_arena_team = nullptr;
@@ -1476,6 +1482,10 @@ void BattleGround::StartBattleGround()
     // This must be done here, because we need to have already invited some players when first BG::Update() method is executed
     // and it doesn't matter if we call StartBattleGround() more times, because m_BattleGrounds is a map and instance id never changes
     sBattleGroundMgr.AddBattleGround(GetInstanceId(), GetTypeId(), this);
+
+#ifdef BUILD_ELUNA
+    sEluna->OnBGStart(this, GetTypeId(), GetInstanceId());
+#endif
 }
 
 /**
